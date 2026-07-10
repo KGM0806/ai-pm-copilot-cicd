@@ -1,0 +1,55 @@
+name: Feature Requirement
+description: Submit a new product requirement
+title: "[Feature] "
+labels: ["requirement", "product"]
+body:
+  - type: textarea
+    id: background
+    attributes:
+      label: Business Background
+      description: Why do we need this feature?
+      placeholder: Describe the business context, user pain point, and expected value.
+    validations:
+      required: true
+
+  - type: textarea
+    id: user_story
+    attributes:
+      label: User Story
+      placeholder: As a user, I want to..., so that...
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      options:
+        - P0 - Critical
+        - P1 - High
+        - P2 - Medium
+        - P3 - Low
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance_criteria
+    attributes:
+      label: Acceptance Criteria
+      placeholder: Given / When / Then...
+    validations:
+      required: true
+
+  - type: textarea
+    id: success_metrics
+    attributes:
+      label: Success Metrics
+      placeholder: Conversion rate, response accuracy, retention, cost reduction, etc.
+    validations:
+      required: true
+
+  - type: textarea
+    id: risk
+    attributes:
+      label: Risks and Constraints
+      placeholder: Product risk, technical risk, legal risk, data risk, operational risk.
