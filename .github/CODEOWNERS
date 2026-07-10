@@ -1,0 +1,6 @@
+/docs/prd/           @product-team
+/prompts/            @ai-product-team
+/api/                @backend-team
+/prototype/          @design-team
+/docs/uat/           @qa-team
+/docs/release-notes/ @release-manager
