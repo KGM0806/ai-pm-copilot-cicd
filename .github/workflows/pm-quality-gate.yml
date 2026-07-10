@@ -1,0 +1,42 @@
+name: 01 PM Quality Gate
+
+on:
+  pull_request:
+    branches:
+      - main
+    types:
+      - opened
+      - edited
+      - synchronize
+      - reopened
+      - ready_for_review
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  product-quality-check:
+    name: Product Quality Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Check validation script
+        run: |
+          if [ ! -f "scripts/check_prd.py" ]; then
+            echo "Error: scripts/check_prd.py does not exist."
+            exit 1
+          fi
+
+      - name: Check PRD structure
+        run: python scripts/check_prd.py
