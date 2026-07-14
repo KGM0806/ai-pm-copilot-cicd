@@ -1,0 +1,64 @@
+name: 02 Deploy Staging
+
+on:
+  push:
+    branches:
+      - develop
+
+permissions:
+  contents: read
+
+jobs:
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    environment: staging
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Deploy staging
+        env:
+          STAGING_DEPLOY_TOKEN: ${{ secrets.STAGING_DEPLOY_TOKEN }}
+          APP_BASE_URL_STAGING: ${{ secrets.APP_BASE_URL_STAGING }}
+        run: |
+          echo "Deploying to staging..."
+          echo "This step can call your cloud platform, Dify API, Docker server, or Vercel/Render deployment."
+          echo "Staging URL: $APP_BASE_URL_STAGING"
+
+      - name: Notify Slack - Staging Success
+        if: success()
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          curl -X POST -H 'Content-type: application/json' \
+          --data "{\"text\":\"✅ Staging deployment completed for AI PM Copilot. Branch: develop. Please start UAT.\"}" \
+          "$SLACK_WEBHOOK_URL"
+
+      - name: Notify Feishu - Staging Success
+        if: success()
+        env:
+          FEISHU_WEBHOOK_URL: ${{ secrets.FEISHU_WEBHOOK_URL }}
+        run: |
+          curl -X POST -H 'Content-Type: application/json' \
+          -d "{\"msg_type\":\"text\",\"content\":{\"text\":\"✅ Staging部署完成：AI PM Copilot 已部署到测试环境，请PM和QA开始UAT验收。\"}}" \
+          "$FEISHU_WEBHOOK_URL"
+
+      - name: Notify Slack - Staging Failure
+        if: failure()
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          curl -X POST -H 'Content-type: application/json' \
+          --data "{\"text\":\"❌ Staging deployment failed. Please check GitHub Actions logs.\"}" \
+          "$SLACK_WEBHOOK_URL"
+
+      - name: Notify Feishu - Staging Failure
+        if: failure()
+        env:
+          FEISHU_WEBHOOK_URL: ${{ secrets.FEISHU_WEBHOOK_URL }}
+        run: |
+          curl -X POST -H 'Content-Type: application/json' \
+          -d "{\"msg_type\":\"text\",\"content\":{\"text\":\"❌ Staging部署失败：请检查GitHub Actions日志。\"}}" \
+          "$FEISHU_WEBHOOK_URL"
