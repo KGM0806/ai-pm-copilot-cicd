@@ -1,0 +1,64 @@
+name: 03 Deploy Production
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Deploy production
+        env:
+          PRODUCTION_DEPLOY_TOKEN: ${{ secrets.PRODUCTION_DEPLOY_TOKEN }}
+          APP_BASE_URL_PRODUCTION: ${{ secrets.APP_BASE_URL_PRODUCTION }}
+        run: |
+          echo "Deploying to production..."
+          echo "This step should only run after production environment approval."
+          echo "Production URL: $APP_BASE_URL_PRODUCTION"
+
+      - name: Notify Slack - Production Success
+        if: success()
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          curl -X POST -H 'Content-type: application/json' \
+          --data "{\"text\":\"🚀 Production release completed for AI PM Copilot. Please monitor post-release metrics.\"}" \
+          "$SLACK_WEBHOOK_URL"
+
+      - name: Notify Feishu - Production Success
+        if: success()
+        env:
+          FEISHU_WEBHOOK_URL: ${{ secrets.FEISHU_WEBHOOK_URL }}
+        run: |
+          curl -X POST -H 'Content-Type: application/json' \
+          -d "{\"msg_type\":\"text\",\"content\":{\"text\":\"🚀 生产发布完成：AI PM Copilot 已上线，请开始观察发布后指标。\"}}" \
+          "$FEISHU_WEBHOOK_URL"
+
+      - name: Notify Slack - Production Failure
+        if: failure()
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          curl -X POST -H 'Content-type: application/json' \
+          --data "{\"text\":\"🔥 Production deployment failed. Please check logs and consider rollback.\"}" \
+          "$SLACK_WEBHOOK_URL"
+
+      - name: Notify Feishu - Production Failure
+        if: failure()
+        env:
+          FEISHU_WEBHOOK_URL: ${{ secrets.FEISHU_WEBHOOK_URL }}
+        run: |
+          curl -X POST -H 'Content-Type: application/json' \
+          -d "{\"msg_type\":\"text\",\"content\":{\"text\":\"🔥 生产发布失败：请检查日志，并评估是否需要回滚。\"}}" \
+          "$FEISHU_WEBHOOK_URL"
