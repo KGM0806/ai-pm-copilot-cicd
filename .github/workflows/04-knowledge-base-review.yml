@@ -1,0 +1,59 @@
+name: 04 Knowledge Base Review
+
+on:
+  pull_request:
+    branches:
+      - develop
+      - main
+    paths:
+      - "docs/knowledge-base/**"
+      - "scripts/kb_review.py"
+      - ".github/workflows/04-knowledge-base-review.yml"
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  knowledge-base-review:
+    name: Knowledge Base Review
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Run knowledge base review
+        id: kb_review
+        continue-on-error: true
+        run: |
+          python scripts/kb_review.py
+
+      - name: Add review summary
+        if: always()
+        run: |
+          if [ -f artifacts/kb-review-summary.md ]; then
+            cat artifacts/kb-review-summary.md >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "# Knowledge Base Review Summary" >> "$GITHUB_STEP_SUMMARY"
+            echo "No summary file was generated." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload review artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: knowledge-base-review-report
+          path: artifacts/
+
+      - name: Fail workflow if review failed
+        if: steps.kb_review.outcome == 'failure'
+        run: |
+          exit 1
