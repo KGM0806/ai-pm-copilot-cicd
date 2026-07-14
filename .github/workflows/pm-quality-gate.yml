@@ -39,4 +39,4 @@ jobs:
           fi
 
       - name: Check PRD structure
-        run: python scripts/check_prd.py# PM Quality Gate workflow
+        run: python scripts/check_prd.py
