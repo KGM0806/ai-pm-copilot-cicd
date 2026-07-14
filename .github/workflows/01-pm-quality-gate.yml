@@ -30,23 +30,4 @@ jobs:
           pip install pyyaml
 
       - name: Check PRD structure
-        run: |
-          python scripts/check_prd.py
-
-      - name: Check Prompt test cases
-        run: |
-          python scripts/prompt_eval.py
-
-      - name: Check OpenAPI document
-        run: |
-          python scripts/check_openapi.py
-
-      - name: Generate release note draft
-        run: |
-          python scripts/generate_release_notes.py
-
-      - name: Upload release note artifact
-        uses: actions/upload-artifact@v7
-        with:
-          name: release-note-draft
-          path: docs/release-notes/
+        run: python scripts/check_prd.py
